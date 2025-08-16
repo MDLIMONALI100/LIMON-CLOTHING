@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>TrendyFits — Interactive Clothing Shop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- AOS (Animate on Scroll) -->
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+  <style>
+    :root{
+      --bg:#0f1220;
+      --card:#161a2d;
+      --muted:#8a92b2;
+      --text:#eef1ff;
+      --accent:#6ee7b7;
+      --accent-2:#60a5fa;
+      --border:rgba(255,255,255,.08);
+      --shadow: 0 10px 30px rgba(0,0,0,.25);
+      --radius:18px;
+    }
+    [data-theme="light"]{
+      --bg:#f7f8fd;
+      --card:#ffffff;
+      --muted:#667085;
+      --text:#0b1020;
+      --accent:#0ea5e9;
+      --accent-2:#22c55e;
+      --border:rgba(0,0,0,.08);
+      --shadow: 0 10px 30px rgba(0,0,0,.08);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      background:var(--bg); color:var(--text);
+      line-height:1.6; overflow-x:hidden;
+    }
+    a{color:inherit;text-decoration:none}
+    img{max-width:100%;display:block}
+    button{font-family:inherit}
+
+    /* Header / Nav */
+    .nav{
+      position:sticky; top:0; z-index:999;
+      backdrop-filter:saturate(140%) blur(8px);
+      background:linear-gradient(to bottom, rgba(3,7,18,.7), rgba(3,7,18,.35));
+      border-bottom:1px solid var(--border);
+    }
+    [data-theme="light"] .nav{
+      background:linear-gradient(to bottom, rgba(255,255,255,.8), rgba(255,255,255,.5));
+    }
+    .nav-inner{
+      max-width:1200px; margin:0 auto; padding:14px 20px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .brand{display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.5px}
+    .brand .logo{
+      width:34px; height:34px; border-radius:10px; display:grid; place-items:center;
+      background: radial-gradient(120% 120% at 20% 10%, var(--accent), transparent 50%),
+                  radial-gradient(120% 120% at 80% 90%, var(--accent-2), transparent 50%),
+                  var(--card);
+      border:1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    .nav-actions{display:flex; align-items:center; gap:10px}
+    .nav-actions input{
+      background:var(--card); border:1px solid var(--border); color:var(--text);
+      padding:10px 12px; border-radius:12px; width:220px; outline:none;
+    }
+    .icon-btn{
+      border:1px solid var(--border); background:var(--card); color:var(--text);
+      padding:10px 12px; border-radius:12px; cursor:pointer;
+      display:flex; align-items:center; gap:8px; transition:.2s transform ease;
+    }
+    .icon-btn:hover{transform:translateY(-1px)}
+    .cart-count{
+      min-width:20px; height:20px; border-radius:999px; display:inline-grid; place-items:center;
+      background:var(--accent); color:#0b1020; font-size:.75rem; font-weight:700; padding:0 6px; margin-left:6px;
+    }
+
+    /* Hero */
+    .hero{
+      position:relative; min-height:80vh; display:grid; place-items:center;
+      overflow:hidden; border-bottom:1px solid var(--border);
+      background:
+        radial-gradient(1200px 600px at 80% 20%, rgba(96,165,250,.12), transparent 50%),
+        radial-gradient(800px 400px at 20% 80%, rgba(110,231,183,.12), transparent 50%);
+    }
+    .hero-inner{
+      max-width:1200px; margin:auto; padding:80px 20px; display:grid; grid-template-columns:1.2fr .8fr; gap:40px;
+    }
+    @media (max-width:900px){ .hero-inner{grid-template-columns:1fr; padding-top:60px}}
+    .hero h1{
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      line-height:1.1; margin:0 0 16px;
+      letter-spacing:-.02em;
+    }
+    .hero p{max-width:680px; color:var(--muted); margin:0 0 24px}
+    .cta-row{display:flex; gap:12px; flex-wrap:wrap}
+    .btn{
+      padding:12px 16px; border-radius:14px; border:1px solid var(--border);
+      background:var(--card); color:var(--text); cursor:pointer; transition:.2s ease transform, .2s ease background;
+    }
+    .btn-primary{
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color:#071016; border:none; font-weight:700;
+    }
+    .btn:hover{transform:translateY(-2px)}
+    .hero-visual{
+      position:relative; height:420px; border-radius:22px; overflow:hidden; border:1px solid var(--border); background:var(--card);
+      box-shadow: var(--shadow);
+    }
+    .hero-visual .floating{
+      position:absolute; inset:0; background:
+        url('https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1400&auto=format&fit=crop') center/cover no-repeat;
+      transform:scale(1.05);
+      filter:saturate(1.08) contrast(1.05);
+    }
+    .hero-badges{
+      position:absolute; left:14px; bottom:14px; display:flex; gap:10px; flex-wrap:wrap;
+    }
+    .badge{
+      backdrop-filter: blur(6px) saturate(150%);
+      background:linear-gradient(to bottom right, rgba(255,255,255,.12), rgba(255,255,255,.04));
+      border:1px solid var(--border); color:var(--text);
+      padding:8px 12px; border-radius:999px; font-size:.9rem;
+      box-shadow: var(--shadow);
+    }
+
+    /* Featured Carousel (Splide-like simple) */
+    .featured{
+      max-width:1200px; margin:70px auto; padding:0 20px;
+    }
+    .section-head{
+      display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:16px;
+    }
+    .section-head h2{font-size: clamp(1.6rem, 3vw, 2.2rem); margin:0}
+    .section-head p{color:var(--muted); margin:0}
+    .carousel{
+      position:relative; overflow:hidden; border-radius:22px; border:1px solid var(--border);
+      background:var(--card); box-shadow: var(--shadow);
+    }
+    .track{display:flex; transition:transform .6s cubic-bezier(.22,.61,.36,1);}
+    .slide{min-width:100%; display:grid; grid-template-columns:1fr 1fr}
+    .slide img{height:420px; object-fit:cover}
+    .slide .copy{padding:36px; display:flex; flex-direction:column; justify-content:center; gap:8px}
+    .carousel .controls{
+      position:absolute; inset:auto 14px 14px auto; display:flex; gap:8px;
+    }
+    .pill{
+      padding:10px 14px; border-radius:12px; border:1px solid var(--border);
+      background:var(--bg); color:var(--text); cursor:pointer;
+    }
+    @media (max-width:900px){
+      .slide{grid-template-columns:1fr}
+      .slide img{height:260px}
+    }
+
+    /* Filters + Grid */
+    .shop{
+      max-width:1200px; margin:70px auto; padding:0 20px;
+    }
+    .filters{
+      display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-bottom:18px;
+      background:var(--card); padding:12px; border-radius:16px; border:1px solid var(--border);
+    }
+    .filters select, .filters input{
+      background:transparent; color:var(--text); border:1px solid var(--border); padding:10px 12px; border-radius:12px; outline:none;
+    }
+    .grid{
+      display:grid; grid-template-columns:repeat(4,1fr); gap:18px;
+    }
+    @media (max-width:1100px){ .grid{grid-template-columns:repeat(3,1fr)}}
+    @media (max-width:800px){ .grid{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:520px){ .grid{grid-template-columns:1fr}}
+
+    .card{
+      position:relative; overflow:hidden; border-radius:18px; border:1px solid var(--border);
+      background:var(--card);
+      transition:transform .25s ease, box-shadow .25s ease;
+      box-shadow: 0 6px 14px rgba(0,0,0,.12);
+    }
+    .card:hover{ transform:translateY(-4px); box-shadow: 0 16px 34px rgba(0,0,0,.24); }
+    .card-media{ position:relative; overflow:hidden; aspect-ratio:4/5; }
+    .card-media img{ width:100%; height:100%; object-fit:cover; transform:scale(1.03); transition:transform .5s ease }
+    .card:hover .card-media img{ transform:scale(1.09) }
+    .quick-actions{
+      position:absolute; top:12px; right:12px; display:flex; gap:8px; transform:translateY(-12px); opacity:0; transition:.2s ease;
+    }
+    .card:hover .quick-actions{ transform:translateY(0); opacity:1 }
+    .chip{padding:6px 10px; font-size:.8rem; border-radius:999px; border:1px solid var(--border); background:rgba(255,255,255,.06)}
+    .card-body{ padding:14px }
+    .title-row{ display:flex; align-items:center; justify-content:space-between; gap:10px }
+    .title-row h3{ margin:0; font-size:1.05rem }
+    .price{ font-weight:700; }
+    .muted{ color:var(--muted); font-size:.9rem }
+    .add-row{ display:flex; align-items:center; justify-content:space-between; margin-top:10px }
+    .add-btn{
+      border:none; border-radius:12px; padding:10px 12px; cursor:pointer; font-weight:600;
+      background:linear-gradient(135deg, var(--accent), var(--accent-2)); color:#06101a;
+      transition:.2s ease transform;
+    }
+    .add-btn:hover{ transform:translateY(-2px) }
+
+    /* Modal */
+    .modal{
+      position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; z-index:1000;
+    }
+    .modal.active{ display:flex }
+    .modal-card{
+      width:min(920px, 92vw); background:var(--card); border:1px solid var(--border); border-radius:20px; overflow:hidden;
+      box-shadow: var(--shadow); display:grid; grid-template-columns: 1.1fr .9fr;
+    }
+    .modal-media{ background:#000; }
+    .modal-media img{ width:100%; height:100%; object-fit:cover }
+    .modal-body{ padding:22px; display:flex; flex-direction:column; gap:14px }
+    .modal-close{ position:absolute; top:18px; right:18px; background:transparent; border:1px solid var(--border); color:var(--text); padding:8px 10px; border-radius:10px; cursor:pointer }
+    .qty{ display:flex; align-items:center; gap:8px }
+    .qty button{ padding:8px 10px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text); cursor:pointer }
+    @media (max-width:900px){ .modal-card{ grid-template-columns:1fr } }
+
+    /* Cart panel */
+    .cart-panel{
+      position:fixed; right:0; top:0; bottom:0; width:min(420px, 90vw); background:var(--card); border-left:1px solid var(--border);
+      transform:translateX(100%); transition:.35s cubic-bezier(.22,.61,.36,1); z-index:1100; display:flex; flex-direction:column;
+    }
+    .cart-panel.open{ transform:translateX(0) }
+    .cart-header{ padding:16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border) }
+    .cart-items{ flex:1; overflow:auto; padding:12px; display:flex; flex-direction:column; gap:12px }
+    .cart-row{
+      display:grid; grid-template-columns:74px 1fr auto; gap:10px; align-items:center; border:1px solid var(--border); border-radius:12px; padding:8px;
+      background:var(--bg);
+    }
+    .cart-row img{ width:74px; height:74px; object-fit:cover; border-radius:8px }
+    .cart-row .x{ background:transparent; border:1px solid var(--border); border-radius:8px; padding:6px 8px; cursor:pointer }
+    .cart-footer{ border-top:1px solid var(--border); padding:14px; display:flex; flex-direction:column; gap:10px }
+    .checkout{ padding:12px; border-radius:12px; background:linear-gradient(135deg, var(--accent), var(--accent-2)); color:#06101a; border:none; font-weight:800; cursor:pointer }
+
+    /* Story / Lookbook (Parallax-ish) */
+    .story{
+      position:relative; margin:80px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+      background:
+        radial-gradient(1000px 380px at 10% 20%, rgba(110,231,183,.08), transparent 60%),
+        radial-gradient(1000px 380px at 90% 80%, rgba(96,165,250,.08), transparent 60%);
+    }
+    .story-inner{ max-width:1200px; margin:0 auto; padding:60px 20px; display:grid; grid-template-columns:1fr 1fr; gap:26px }
+    .story .panel{
+      background:var(--card); border:1px solid var(--border); border-radius:20px; overflow:hidden; box-shadow: var(--shadow);
+    }
+    .story .panel img{ width:100%; height:360px; object-fit:cover }
+    .story .panel .copy{ padding:20px }
+    @media (max-width:900px){ .story-inner{ grid-template-columns:1fr } .story .panel img{ height:240px } }
+
+    /* Contact */
+    .contact{
+      max-width:1100px; margin:80px auto; padding:0 20px;
+      display:grid; grid-template-columns: 1fr 1fr; gap:24px;
+    }
+    @media (max-width:900px){ .contact{ grid-template-columns:1fr } }
+    .contact .cardlike{
+      background:var(--card); border:1px solid var(--border); border-radius:18px; padding:18px; box-shadow: var(--shadow);
+    }
+    .contact form input,.contact form textarea{
+      width:100%; background:transparent; border:1px solid var(--border); color:var(--text); border-radius:12px; padding:12px; outline:none;
+    }
+    .contact form textarea{ min-height:120px; resize:vertical }
+    .contact .send{ background:linear-gradient(135deg, var(--accent), var(--accent-2)); color:#06101a; border:none; font-weight:800; border-radius:12px; padding:12px; cursor:pointer }
+
+    /* Floating Chat */
+    .chat{
+      position:fixed; bottom:16px; right:16px; z-index:1200;
+    }
+    .chat-window{
+      display:none; width:min(360px, 90vw); background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; box-shadow: var(--shadow);
+    }
+    .chat-window.open{ display:block }
+    .chat-header{ padding:10px 12px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between }
+    .chat-body{ max-height:320px; overflow:auto; padding:12px; display:flex; flex-direction:column; gap:10px }
+    .bubble{ padding:10px 12px; border-radius:12px; background:var(--bg); border:1px solid var(--border); max-width:80% }
+    .bubble.me{ align-self:flex-end; background:linear-gradient(135deg, var(--accent), var(--accent-2)); color:#06101a; border:none }
+    .chat-input{ display:flex; gap:8px; padding:10px }
+    .chat-input input{ flex:1; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:transparent; color:var(--text) }
+    .chat-input button{ padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--bg); color:var(--text); cursor:pointer }
+
+    /* Footer + utilities */
+    footer{ padding:40px 20px; border-top:1px solid var(--border); color:var(--muted); text-align:center }
+    .top{ position:fixed; bottom:16px; left:16px; padding:12px 14px; border-radius:999px; border:1px solid var(--border); background:var(--card); cursor:pointer; box-shadow: var(--shadow) }
+  </style>
+</head>
+<body>
+  <!-- THEME (light/dark) -->
+  <script>
+    const savedTheme = localStorage.getItem('tf-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
+
+  <!-- NAV -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <div class="brand" aria-label="brand">
+        <div class="logo" aria-hidden="true">
+          <!-- simple mark -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M5 12h14M12 5v14" stroke="currentColor" stroke-width="2" />
+          </svg>
+        </div>
+        <span>TrendyFits</span>
+      </div>
+
+      <div class="nav-actions">
+        <input id="search" type="search" placeholder="Search shoes, shirts, pants..." />
+        <button class="icon-btn" id="themeToggle" title="Toggle theme">Theme</button>
+        <button class="icon-btn" id="openCart" title="Open cart">
+          Cart <span class="cart-count" id="cartCount">0</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-inner">
+      <div data-aos="fade-up">
+        <h1>Dress Your <em style="background:linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip:text; background-clip:text; color:transparent">Next Move</em></h1>
+        <p>Premium streetwear and essentials crafted for everyday momentum. Micro-interactions inspired by <strong>Nike’s</strong> clean product-card hover & quick-add vibes.</p>
+        <div class="cta-row">
+          <a href="#shop" class="btn btn-primary">Shop the Drop</a>
+          <a href="#story" class="btn">See the Story</a>
+        </div>
+        <div class="hero-badges">
+          <span class="badge">Free Returns 30d</span>
+          <span class="badge">COD (BD) Available</span>
+          <span class="badge">New: AeroSneak ’25</span>
+        </div>
+      </div>
+      <div class="hero-visual" data-aos="zoom-in" data-aos-delay="120">
+        <div class="floating"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- FEATURED CAROUSEL -->
+  <section class="featured" id="featured">
+    <div class="section-head">
+      <div>
+        <h2>Featured Picks</h2>
+        <p>Quick looks at what’s trending this week.</p>
+      </div>
+      <div class="controls">
+        <button class="pill" id="prevSlide" aria-label="Previous">‹</button>
+        <button class="pill" id="nextSlide" aria-label="Next">›</button>
+      </div>
+    </div>
+    <div class="carousel" id="carousel">
+      <div class="track" id="track">
+        <!-- Slide 1 -->
+        <article class="slide">
+          <img src="https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1600&auto=format&fit=crop" alt="Featured sneakers">
+          <div class="copy">
+            <h3>AeroSneak Mesh</h3>
+            <p class="muted">Feather-light knit upper, cloud foam midsole. Built for city miles.</p>
+            <div class="cta-row">
+              <button class="btn btn-primary" data-quick='{"id":"sku-1","name":"AeroSneak Mesh","price":79,"img":"https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1200&auto=format&fit=crop"}'>Quick Add — $79</button>
+              <button class="btn" data-scroll="#shop">Explore Collection</button>
+            </div>
+          </div>
+        </article>
+        <!-- Slide 2 -->
+        <article class="slide">
+          <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=1600&auto=format&fit=crop" alt="Denim">
+          <div class="copy">
+            <h3>Denim Revival</h3>
+            <p class="muted">Heavyweight selvedge with a soft wash for everyday movement.</p>
+            <div class="cta-row">
+              <button class="btn btn-primary" data-quick='{"id":"sku-5","name":"Selvedge Denim","price":59,"img":"https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=1200&auto=format&fit=crop"}'>Quick Add — $59</button>
+              <button class="btn" data-scroll="#shop">See All Jeans</button>
+            </div>
+          </div>
+        </article>
+        <!-- Slide 3 -->
+        <article class="slide">
+          <img src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1600&auto=format&fit=crop" alt="Leather jacket">
+          <div class="copy">
+            <h3>Iconic Leather</h3>
+            <p class="muted">Supple top-grain leather with a minimalist cut and satin lining.</p>
+            <div class="cta-row">
+              <button class="btn btn-primary" data-quick='{"id":"sku-8","name":"Icon Leather Jacket","price":129,"img":"https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop"}'>Quick Add — $129</button>
+              <button class="btn" data-scroll="#shop">Outerwear</button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- SHOP GRID -->
+  <section class="shop" id="shop">
+    <div class="section-head">
+      <h2>Shop New Arrivals</h2>
+      <p class="muted">Filter, search & sort. Add to cart or quick-view for details.</p>
+    </div>
+
+    <div class="filters" data-aos="fade-up">
+      <select id="category">
+        <option value="all">All Categories</option>
+        <option value="shoes">Shoes</option>
+        <option value="shirts">Shirts</option>
+        <option value="pants">Pants</option>
+        <option value="outerwear">Outerwear</option>
+        <option value="accessories">Accessories</option>
+      </select>
+
+      <select id="sort">
+        <option value="featured">Sort: Featured</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="name-asc">Name: A–Z</option>
+      </select>
+
+      <input id="priceMin" type="number" placeholder="Min $" min="0" />
+      <input id="priceMax" type="number" placeholder="Max $" min="0" />
+      <button class="icon-btn" id="clearFilters">Clear</button>
+    </div>
+
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <!-- STORY / LOOKBOOK -->
+  <section class="story" id="story">
+    <div class="story-inner">
+      <article class="panel" data-aos="fade-right">
+        <img src="https://images.unsplash.com/photo-1520974703434-6574969b28d6?q=80&w=1400&auto=format&fit=crop" alt="Look 1" />
+        <div class="copy">
+          <h3>Motion First</h3>
+          <p class="muted">We prototype every piece with movement in mind: sit, sprint, or fly. Fabrics chosen for breathability and recovery.</p>
+        </div>
+      </article>
+      <article class="panel" data-aos="fade-left">
+        <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1400&auto=format&fit=crop" alt="Look 2" />
+        <div class="copy">
+          <h3>Built to Last</h3>
+          <p class="muted">Clean lines, reinforced seams, and timeless palettes. Designed to be worn hard and often.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact" id="contact">
+    <div class="cardlike" data-aos="fade-up">
+      <h2>Ask About a Product</h2>
+      <p class="muted">Have a question? Tell us the SKU or name and what you need. We’ll reply fast.</p>
+      <form id="contactForm">
+        <label>Name</label>
+        <input type="text" id="cName" required>
+        <label>Email</label>
+        <input type="email" id="cEmail" required>
+        <label>Your Message</label>
+        <textarea id="cMsg" placeholder="E.g., Do you have size 42 in AeroSneak Mesh?"></textarea>
+        <div style="display:flex; gap:10px; margin-top:12px">
+          <button class="send" type="submit">Send Message</button>
+          <button class="btn" type="button" id="prefill">Prefill with Cart</button>
+        </div>
+      </form>
+    </div>
+    <div class="cardlike" data-aos="fade-up" data-aos-delay="120">
+      <h2>Visit / Policies</h2>
+      <ul style="margin:0; padding-left:18px">
+        <li>Dhaka showroom (Sat–Thu 11am–8pm)</li>
+        <li>Free exchange within 30 days</li>
+        <li>Cash on delivery across Bangladesh</li>
+        <li>Support: hello@trendyfits.example</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    © <span id="year"></span> TrendyFits — Built with love & motion.
+  </footer>
+
+  <!-- BACK TO TOP -->
+  <button class="top" id="toTop" title="Back to top">↑</button>
+
+  <!-- QUICK VIEW MODAL -->
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-label="Quick view">
+      <button class="modal-close" id="modalClose">Close</button>
+      <div class="modal-media"><img id="modalImg" alt=""></div>
+      <div class="modal-body">
+        <h2 id="modalTitle" style="margin:.2rem 0 0"></h2>
+        <div class="muted" id="modalCat"></div>
+        <div class="chip" id="modalSku" style="width:fit-content"></div>
+        <p id="modalDesc"></p>
+        <div class="price" id="modalPrice"></div>
+        <div class="qty">
+          <span>Qty</span>
+          <button data-q="-1">−</button>
+          <span id="qty">1</span>
+          <button data-q="1">+</button>
+        </div>
+        <div class="cta-row">
+          <button class="btn btn-primary" id="modalAdd">Add to Cart</button>
+          <button class="btn" id="modalWish">♡ Wishlist</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CART PANEL -->
+  <aside class="cart-panel" id="cartPanel" aria-label="Shopping cart">
+    <div class="cart-header">
+      <strong>Cart</strong>
+      <button class="icon-btn" id="closeCart">Close</button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-footer">
+      <div style="display:flex; justify-content:space-between">
+        <span>Subtotal</span><strong id="subtotal">$0</strong>
+      </div>
+      <button class="checkout">Checkout (Demo)</button>
+      <small class="muted">Taxes & shipping calculated at checkout.</small>
+    </div>
+  </aside>
+
+  <!-- FLOATING CHAT (DEMO) -->
+  <div class="chat" aria-live="polite">
+    <button class="icon-btn" id="chatToggle">Ask us</button>
+    <div class="chat-window" id="chatWin">
+      <div class="chat-header">
+        <strong>TrendyFits Support</strong>
+        <button class="icon-btn" id="chatClose">×</button>
+      </div>
+      <div class="chat-body" id="chatBody">
+        <div class="bubble">Hey! Need sizing or stock help?</div>
+      </div>
+      <div class="chat-input">
+        <input id="chatInput" placeholder="Type your message…" />
+        <button id="chatSend">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AOS -->
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://unpkg.com/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+
+  <script>
+    // --------------------------
+    // DATA (10+ products)
+    // --------------------------
+    const PRODUCTS = [
+      { id:"sku-1",  name:"AeroSneak Mesh",    price:79,  category:"shoes",     img:"https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1200&auto=format&fit=crop", desc:"Breathable mesh upper with cushioned foam. Daily miles, zero bulk." },
+      { id:"sku-2",  name:"Prime Runner",      price:99,  category:"shoes",     img:"https://images.unsplash.com/photo-1595341888016-a392ef81b7de?q=80&w=1200&auto=format&fit=crop", desc:"Responsive midsole with durable outsole. Road-ready." },
+      { id:"sku-3",  name:"City Loafers",      price:69,  category:"shoes",     img:"https://images.unsplash.com/photo-1582582429416-2cdc8c73ebc2?q=80&w=1200&auto=format&fit=crop", desc:"Minimal loafers for clean fits. Soft lining, all-day comfort." },
+      { id:"sku-4",  name:"Everyday Tee",      price:19,  category:"shirts",    img:"https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=1200&auto=format&fit=crop", desc:"Combed cotton tee with a premium hand feel." },
+      { id:"sku-5",  name:"Selvedge Denim",    price:59,  category:"pants",     img:"https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=1200&auto=format&fit=crop", desc:"Rigid selvedge denim with gradual fade. Straight fit." },
+      { id:"sku-6",  name:"Tech Chinos",       price:49,  category:"pants",     img:"https://images.unsplash.com/photo-1548883354-7622d03aca27?q=80&w=1200&auto=format&fit=crop", desc:"Stretch performance chinos with water-repellent finish." },
+      { id:"sku-7",  name:"Oxford Shirt",      price:39,  category:"shirts",    img:"https://images.unsplash.com/photo-1539533113208-f6df8cc8b543?q=80&w=1200&auto=format&fit=crop", desc:"Classic oxford weave, button-down collar, smart-casual." },
+      { id:"sku-8",  name:"Icon Leather Jacket", price:129, category:"outerwear",img:"https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop", desc:"Top-grain leather with satin lining. Icon silhouette." },
+      { id:"sku-9",  name:"Packable Windbreaker", price:69, category:"outerwear", img:"https://images.unsplash.com/photo-1512436991641-fd03b86c9094?q=80&w=1200&auto=format&fit=crop", desc:"Ultra-light shell with DWR. Packs into its own pocket." },
+      { id:"sku-10", name:"Rib Beanie",        price:15,  category:"accessories", img:"https://images.unsplash.com/photo-1517512006864-7edc3b933137?q=80&w=1200&auto=format&fit=crop", desc:"Warm rib knit, soft acrylic. One size." },
+      { id:"sku-11", name:"Court Sneakers",    price:89,  category:"shoes",     img:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop", desc:"Crisp court profile with padded collar and cupsole." },
+      { id:"sku-12", name:"Heavy Hoodie",      price:45,  category:"outerwear", img:"https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=1200&auto=format&fit=crop", desc:"500gsm brushed fleece. Cozy, structured, premium." }
+    ];
+
+    // --------------------------
+    // STATE
+    // --------------------------
+    const state = {
+      theme: localStorage.getItem('tf-theme') || 'dark',
+      cart: JSON.parse(localStorage.getItem('tf-cart') || '[]'),
+      filters: { category:'all', q:'', priceMin:null, priceMax:null, sort:'featured' },
+      quick: null
+    };
+
+    // --------------------------
+    // UTIL
+    // --------------------------
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+    const fmt = n => `$${n.toFixed(2)}`;
+
+    // --------------------------
+    // RENDER GRID
+    // --------------------------
+    const grid = $('#grid');
+    function renderGrid(){
+      grid.innerHTML = '';
+      const filtered = PRODUCTS
+        .filter(p => state.filters.category === 'all' || p.category === state.filters.category)
+        .filter(p => state.filters.q === '' || p.name.toLowerCase().includes(state.filters.q))
+        .filter(p => state.filters.priceMin == null || p.price >= state.filters.priceMin)
+        .filter(p => state.filters.priceMax == null || p.price <= state.filters.priceMax)
+        .sort((a,b)=>{
+          switch(state.filters.sort){
+            case 'price-asc': return a.price - b.price;
+            case 'price-desc': return b.price - a.price;
+            case 'name-asc': return a.name.localeCompare(b.name);
+            default: return 0;
+          }
+        });
+
+      filtered.forEach(p=>{
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.setAttribute('data-aos','fade-up');
+
+        card.innerHTML = `
+          <div class="card-media">
+            <img src="${p.img}" alt="${p.name}">
+            <div class="quick-actions">
+              <button class="icon-btn" data-quick='${JSON.stringify(p)}' title="Quick view">Quick</button>
+              <button class="icon-btn" data-add='${JSON.stringify(p)}' title="Quick add">+ Cart</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="title-row">
+              <h3>${p.name}</h3>
+              <div class="price">${fmt(p.price)}</div>
+            </div>
+            <div class="muted">${p.category}</div>
+            <div class="add-row">
+              <span class="chip">ID: ${p.id}</span>
+              <button class="add-btn" data-add='${JSON.stringify(p)}'>Add to Cart</button>
+            </div>
+          </div>`;
+
+        grid.appendChild(card);
+      });
+
+      AOS.refreshHard();
+    }
+
+    // --------------------------
+    // CART
+    // --------------------------
+    const cartCount = $('#cartCount');
+    const cartPanel  = $('#cartPanel');
+    const cartItems  = $('#cartItems');
+    const subtotalEl = $('#subtotal');
+
+    function saveCart(){ localStorage.setItem('tf-cart', JSON.stringify(state.cart)); }
+    function findInCart(id){ return state.cart.find(i=>i.id===id); }
+
+    function addToCart(product, qty=1){
+      const item = findInCart(product.id);
+      if(item) item.qty += qty; else state.cart.push({ ...product, qty });
+      saveCart(); updateCartUI(); pulseCart();
+    }
+    function removeFromCart(id){
+      state.cart = state.cart.filter(i=>i.id!==id);
+      saveCart(); updateCartUI();
+    }
+    function setQty(id, q){
+      const item = findInCart(id);
+      if(!item) return;
+      item.qty = Math.max(1, q);
+      saveCart(); updateCartUI();
+    }
+    function cartTotal(){ return state.cart.reduce((s,i)=>s+i.price*i.qty,0); }
+
+    function updateCartUI(){
+      cartItems.innerHTML = '';
+      state.cart.forEach(i=>{
+        const row = document.createElement('div');
+        row.className='cart-row';
+        row.innerHTML = `
+          <img src="${i.img}" alt="${i.name}">
+          <div>
+            <strong>${i.name}</strong>
+            <div class="muted">${i.id} • ${i.category}</div>
+            <div style="display:flex; gap:8px; align-items:center; margin-top:6px">
+              <button class="x" data-step="-1" data-id="${i.id}">−</button>
+              <span>${i.qty}</span>
+              <button class="x" data-step="1" data-id="${i.id}">+</button>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px">
+            <div><strong>${fmt(i.price*i.qty)}</strong></div>
+            <button class="x" data-remove="${i.id}">Remove</button>
+          </div>`;
+        cartItems.appendChild(row);
+      });
+      subtotalEl.textContent = fmt(cartTotal());
+      cartCount.textContent  = state.cart.reduce((s,i)=>s+i.qty,0);
+    }
+
+    function pulseCart(){
+      gsap.fromTo('#openCart',{scale:1},{scale:1.08, yoyo:true, repeat:1, duration:.12, ease:'power2'});
+    }
+
+    // --------------------------
+    // QUICK VIEW MODAL
+    // --------------------------
+    const modal = $('#modal');
+    const modalClose = $('#modalClose');
+    const modalTitle = $('#modalTitle');
+    const modalCat   = $('#modalCat');
+    const modalSku   = $('#modalSku');
+    const modalDesc  = $('#modalDesc');
+    const modalPrice = $('#modalPrice');
+    const modalImg   = $('#modalImg');
+    const qtyEl      = $('#qty');
+    const modalAdd   = $('#modalAdd');
+
+    function openModal(p){
+      state.quick = { ...p, qty:1 };
+      modalTitle.textContent = p.name;
+      modalCat.textContent   = p.category;
+      modalSku.textContent   = p.id;
+      modalDesc.textContent  = p.desc;
+      modalPrice.textContent = fmt(p.price);
+      modalImg.src = p.img;
+      qtyEl.textContent = '1';
+      modal.classList.add('active');
+      document.body.style.overflow='hidden';
+      gsap.from('.modal-card',{ y:40, opacity:0, duration:.25, ease:'power2' });
+    }
+    function closeModal(){
+      modal.classList.remove('active');
+      document.body.style.overflow='';
+    }
+
+    // --------------------------
+    // FILTERS + SEARCH + SORT
+    // --------------------------
+    const category = $('#category');
+    const sort     = $('#sort');
+    const search   = $('#search');
+    const priceMin = $('#priceMin');
+    const priceMax = $('#priceMax');
+    const clearFilters = $('#clearFilters');
+
+    category.addEventListener('change', e => { state.filters.category = e.target.value; renderGrid(); });
+    sort.addEventListener('change', e => { state.filters.sort = e.target.value; renderGrid(); });
+    search.addEventListener('input', e => { state.filters.q = e.target.value.toLowerCase(); renderGrid(); });
+    priceMin.addEventListener('input', e => { state.filters.priceMin = e.target.value? Number(e.target.value): null; renderGrid(); });
+    priceMax.addEventListener('input', e => { state.filters.priceMax = e.target.value? Number(e.target.value): null; renderGrid(); });
+    clearFilters.addEventListener('click', ()=>{
+      state.filters = { category:'all', q:'', priceMin:null, priceMax:null, sort:'featured' };
+      category.value='all'; sort.value='featured'; search.value=''; priceMin.value=''; priceMax.value='';
+      renderGrid();
+    });
+
+    // --------------------------
+    // CAROUSEL
+    // --------------------------
+    const track = $('#track'); let slideIndex = 0;
+    function goTo(i){
+      slideIndex = (i+3)%3;
+      track.style.transform = `translateX(-${slideIndex*100}%)`;
+    }
+    $('#prevSlide').addEventListener('click',()=>goTo(slideIndex-1));
+    $('#nextSlide').addEventListener('click',()=>goTo(slideIndex+1));
+    setInterval(()=>goTo(slideIndex+1), 7000);
+
+    // --------------------------
+    // THEME TOGGLE
+    // --------------------------
+    $('#themeToggle').addEventListener('click',()=>{
+      const next = (state.theme==='dark'?'light':'dark');
+      state.theme = next;
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('tf-theme', next);
+    });
+
+    // --------------------------
+    // CART PANEL TOGGLE
+    // --------------------------
+    $('#openCart').addEventListener('click', ()=> cartPanel.classList.add('open'));
+    $('#closeCart').addEventListener('click', ()=> cartPanel.classList.remove('open'));
+    cartPanel.addEventListener('click', e=>{
+      if(e.target.dataset.remove) removeFromCart(e.target.dataset.remove);
+      if(e.target.dataset.step){
+        const id = e.target.dataset.id;
+        const step = Number(e.target.dataset.step);
+        const item = findInCart(id);
+        if(item){ setQty(id, item.qty + step); }
+      }
+    });
+
+    // --------------------------
+    // DELEGATED EVENTS (GRID)
+    // --------------------------
+    grid.addEventListener('click', e=>{
+      const quickEl = e.target.closest('[data-quick]');
+      const addEl   = e.target.closest('[data-add]');
+      if(quickEl){
+        const p = JSON.parse(quickEl.dataset.quick);
+        openModal(p);
+      }
+      if(addEl){
+        const p = JSON.parse(addEl.dataset.add);
+        addToCart(p, 1);
+      }
+    });
+
+    // Featured quick-add buttons
+    $$('#featured [data-quick]').forEach(btn=>{
+      btn.addEventListener('click', ()=> {
+        const p = JSON.parse(btn.dataset.quick);
+        addToCart(p, 1);
+      });
+    });
+
+    // Scroll-to buttons
+    $$('#featured [data-scroll]').forEach(btn=>{
+      btn.addEventListener('click', ()=> {
+        const target = btn.getAttribute('data-scroll');
+        document.querySelector(target)?.scrollIntoView({behavior:'smooth'});
+      });
+    });
+
+    // --------------------------
+    // MODAL EVENTS
+    // --------------------------
+    $('#modalClose').addEventListener('click', closeModal);
+    modal.addEventListener('click', (e)=>{ if(e.target===modal) closeModal(); });
+    $('.qty').addEventListener('click', (e)=>{
+      const step = Number(e.target.dataset.q);
+      if(!step) return;
+      state.quick.qty = Math.max(1, (state.quick.qty||1) + step);
+      qtyEl.textContent = String(state.quick.qty);
+    });
+    modalAdd.addEventListener('click', ()=>{
+      addToCart(state.quick, state.quick.qty||1);
+      closeModal();
+      cartPanel.classList.add('open');
+    });
+    $('#modalWish').addEventListener('click', ()=>{
+      alert('Added to wishlist (demo)');
+    });
+
+    // --------------------------
+    // CONTACT FORM (DEMO)
+    // --------------------------
+    $('#prefill').addEventListener('click', ()=>{
+      const lines = state.cart.map(i => `${i.name} x ${i.qty} — ${fmt(i.price*i.qty)}`).join('\n');
+      const total = fmt(cartTotal());
+      $('#cMsg').value = `Hello, I have a question about:\n${lines}\nSubtotal: ${total}`;
+    });
+    $('#contactForm').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      alert('Thanks! Your message was sent (demo)');
+      e.target.reset();
+    });
+
+    // --------------------------
+    // CHAT (DEMO)
+    // --------------------------
+    const chatToggle = $('#chatToggle');
+    const chatClose  = $('#chatClose');
+    const chatWin    = $('#chatWin');
+    const chatBody   = $('#chatBody');
+    const chatInput  = $('#chatInput');
+    const chatSend   = $('#chatSend');
+
+    chatToggle.addEventListener('click', ()=> chatWin.classList.toggle('open'));
+    chatClose.addEventListener('click', ()=> chatWin.classList.remove('open'));
+    chatSend.addEventListener('click', ()=>{
+      const txt = chatInput.value.trim();
+      if(!txt) return;
+      const me = document.createElement('div'); me.className='bubble me'; me.textContent = txt;
+      chatBody.appendChild(me); chatInput.value='';
+      setTimeout(()=>{
+        const bot = document.createElement('div'); bot.className='bubble'; bot.textContent = 'Thanks! We\'ll get right back to you.';
+        chatBody.appendChild(bot);
+        chatBody.scrollTop = chatBody.scrollHeight;
+      }, 700);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    });
+
+    // --------------------------
+    // BACK TO TOP
+    // --------------------------
+    $('#toTop').addEventListener('click', ()=> window.scrollTo({top:0, behavior:'smooth'}));
+
+    // --------------------------
+    // INIT
+    // --------------------------
+    function init(){
+      $('#year').textContent = new Date().getFullYear();
+      renderGrid();
+      updateCartUI();
+
+      // Header reveal
+      gsap.from('.nav-inner',{ y:-24, opacity:0, duration:.35, ease:'power2' });
+
+      // Hero parallax-ish float
+      gsap.to('.floating',{ scale:1.08, duration:8, repeat:-1, yoyo:true, ease:'sine.inOut' });
+
+      // Cards entrance on scroll (extra flair beyond AOS)
+      ScrollTrigger.batch('.card', {
+        onEnter: batch => gsap.to(batch, { opacity:1, y:-6, stagger:0.05, duration:.25, ease:'power2' }),
+        start: 'top 92%'
+      });
+
+      AOS.init({ duration:700, once:true, offset: 80 });
+    }
+    init();
+
+    // Accessibility: keyboard close modal
+    window.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ closeModal(); cartPanel.classList.remove('open'); }});
+  </script>
+</body>
+</html>
